@@ -1,0 +1,11 @@
+services:
+  user-db:
+    environment:
+    - MYSQL_DATABASE=userDB_test
+    volumes: !reset []
+    tmpfs:
+      - /var/lib/mysql
+
+  user-service:
+    environment:
+      - USER_DB_NAME=userDB_test
