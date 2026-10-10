@@ -33,13 +33,13 @@ goose-user-db:
 	$(call goose-create,user_db_migrations)
 
 compose:
-	docker compose -f .\deployment\docker-compose.yaml up
+	docker compose -f .\deployment\docker-compose.yaml up -d
 
 compose-down:
 	docker compose -f .\deployment\docker-compose.yaml down
 
 compose-b:
-	docker compose -f .\deployment\docker-compose.yaml up --build
+	docker compose -f .\deployment\docker-compose.yaml up -d --build
 
 compose-log:
 	docker compose -f .\deployment\docker-compose.yaml logs
