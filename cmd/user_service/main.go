@@ -21,6 +21,7 @@ func main() {
 	}
 	user_db_migrations.MigrateUserDB(db)
 
+
 	server := grpc.NewServer()
 	listener, err := net.Listen("tcp", ":"+config.Required(config.UserSrvPort))
 	if err != nil {
