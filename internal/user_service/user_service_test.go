@@ -36,6 +36,7 @@ func (m *MockRepository) Get(id string) (User, error) {
 	if id == "not_found" {
 		return User{}, &errs.Err{Err: errs.NotFound, Message: "user not found"}
 	}
+
 	return User{
 		ID:    id,
 		Name:  "Test User",
