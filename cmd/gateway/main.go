@@ -21,6 +21,7 @@ func main() {
 		log.Fatalf("failed to connect to user service: %v", err)
 	}
 
+
 	router.Use(middlewares.IPRateLimiterMiddleware)
 	handlers.NewAuthHandler(router, userClient).RegisterRoutes()
 
