@@ -40,6 +40,7 @@ func (rl *RateLimiter) GerLimiter(key string) *rate.Limiter {
 		}
 		rl.clients[key] = c
 	}
+
 	c.lastSeen = time.Now()
 	return c.limiter
 }
