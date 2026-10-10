@@ -22,7 +22,6 @@ func main() {
 	}
 
 	router.Use(middlewares.IPRateLimiterMiddleware)
-
 	handlers.NewAuthHandler(router, userClient).RegisterRoutes()
 
 	protected := router.PathPrefix("/").Subrouter()
