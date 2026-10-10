@@ -32,7 +32,7 @@ jobs:
         run: go test -v ./...
 
       - name: Setup test containers
-        run: make compose-b
+        run: docker compose -f ./deployment/docker-compose.yaml -f ./deployment/docker-compose.test.yaml up -b --build
 
       - name: Run integration tests
         run: go test -v -tags=integration ./tests/integration/
