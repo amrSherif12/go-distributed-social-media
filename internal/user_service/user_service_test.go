@@ -6,6 +6,7 @@ import (
 	"go_distributed_social_media/api/pb"
 	"go_distributed_social_media/internal/common/errs"
 	"go_distributed_social_media/internal/common/utils"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -15,6 +16,12 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
+
+func TestMain(m *testing.M) {
+	os.Setenv("JWT_KEY", "yRpuW4VG75ABOKtgmaUj4xPmes7K6GHLRvysObWuzxh")
+	code := m.Run()
+	os.Exit(code)
+}
 
 type MockRepository struct{}
 
@@ -29,6 +36,7 @@ func (m *MockRepository) Get(id string) (User, error) {
 	if id == "not_found" {
 		return User{}, &errs.Err{Err: errs.NotFound, Message: "user not found"}
 	}
+
 	return User{
 		ID:    id,
 		Name:  "Test User",

@@ -4,12 +4,19 @@ import (
 	"go_distributed_social_media/internal/common/config"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"
 )
+
+func TestMain(m *testing.M) {
+	os.Setenv("JWT_KEY", "yRpuW4VG75ABOKtgmaUj4xPmes7K6GHLRvysObWuzxh")
+	code := m.Run()
+	os.Exit(code)
+}
 
 func generateTestToken(uid string, ttl time.Duration) string {
 	claims := jwt.MapClaims{
