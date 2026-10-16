@@ -15,8 +15,6 @@ services:
       - USER_DB_PORT=${USER_DB_PORT}
       - USER_DB_NAME=${USER_DB_NAME}
       - USER_SRV_PORT=${USER_SRV_PORT}
-    networks:
-      - net
     depends_on:
       user-db:
         condition: "service_healthy"
@@ -34,8 +32,6 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=${SQL_DB_PASS}
       - MYSQL_DATABASE=${USER_DB_NAME}
-    networks:
-      - net
     volumes:
       - "user-db-data:/var/lib/mysql"
     healthcheck:
@@ -55,19 +51,117 @@ services:
       - JWT_KEY=${JWT_KEY}
       - USER_SRV_HOST=user-service
       - USER_SRV_PORT=${USER_SRV_PORT}
+      - POST_SRV_HOST=post-service
+      - POST_SRV_PORT=${POST_SRV_PORT}
       - GATEWAY_PORT=${GATEWAY_PORT}
-      - GATEWAY_HOST=0.0.0.0
     ports:
       - "${GATEWAY_PORT}:${GATEWAY_PORT}"
-    networks:
-      - net
     depends_on:
       user-service:
         condition: "service_healthy"
+      post-service:
+        condition: "service_healthy"
+
+  post-db:
+    image: mongo:7.0
+    container_name: shop-mongodb
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${POST_DB_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${POST_DB_PASS}
+    ports:
+      - "${POST_DB_PORT}:${POST_DB_PORT}"
+    volumes:
+      - post-db-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+
+  post-cache:
+    image: redis:7-alpine
+    container_name: post-redis
+    ports:
+      - "${POST_CACHE_PORT}:${POST_CACHE_PORT}"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  post-queue:
+    image: rabbitmq:4-management-alpine
+    container_name: post-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${POST_EVENT_BROKER_USER}
+      RABBITMQ_DEFAULT_PASS: ${POST_EVENT_BROKER_PASS}
+    ports:
+      - "${POST_EVENT_BROKER_PORT}:${POST_EVENT_BROKER_PORT}"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+
+  post-obj-db:
+    image: localstack/localstack:2026.09.1
+    container_name: minio
+    restart: unless-stopped
+    ports:
+      - "${POST_OBJ_DB_PORT}:${POST_OBJ_DB_PORT}"
+    environment:
+      - SERVICES=s3
+      - AWS_DEFAULT_REGION=${POST_OBJ_DB_REGION}
+    volumes:
+      - "post-obj-db:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+
+  post-service:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile
+      args:
+        SRV_NAME: post_service
+    ports:
+      - "${POST_SRV_PORT}:${POST_SRV_PORT}"
+    environment:
+      - POST_SRV_PORT=${POST_SRV_PORT}
+      - POST_DB_HOST=post-db
+      - POST_DB_PORT=27017
+      - POST_DB_USER=${POST_DB_USER}
+      - POST_DB_PASS=${POST_DB_PASS}
+      - POST_DB_NAME=${POST_DB_NAME}
+      - POST_CACHE_HOST=post-cache
+      - POST_CACHE_PORT=6379
+      - POST_EVENT_BROKER_HOST=post-queue
+      - POST_EVENT_BROKER_PORT=5672
+      - POST_EVENT_BROKER_USER=${POST_EVENT_BROKER_USER}
+      - POST_EVENT_BROKER_PASS=${POST_EVENT_BROKER_PASS}
+      - POST_EVENT_QUEUE=${POST_EVENT_QUEUE}
+      - POST_OBJ_DB_HOST=post-obj-db
+      - POST_OBJ_DB_PUBLIC_HOST=${POST_OBJ_DB_PUBLIC_HOST}
+      - POST_OBJ_DB_PORT=${POST_OBJ_DB_PORT}
+      - POST_OBJ_DB_USER=${POST_OBJ_DB_USER}
+      - POST_OBJ_DB_PASS=${POST_OBJ_DB_PASS}
+      - POST_OBJ_DB_BUCKET=${POST_OBJ_DB_BUCKET}
+      - POST_OBJ_DB_REGION=${POST_OBJ_DB_REGION}
+    depends_on:
+      post-db:
+        condition: service_healthy
+      post-cache:
+        condition: service_healthy
+      post-queue:
+        condition: service_healthy
+      post-obj-db:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "pidof service || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
 
 volumes:
   user-db-data:
-
-networks:
-  net:
-    driver: bridge
+  post-db-data:
+  post-obj-db:

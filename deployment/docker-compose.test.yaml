@@ -9,3 +9,15 @@ services:
   user-service:
     environment:
       - USER_DB_NAME=userDB_test
+
+  post-db:
+    volumes: !reset []
+    tmpfs:
+      - /data/db
+
+  post-obj-db:
+    image: localstack/localstack:3.8
+
+  post-service:
+    environment:
+      - POST_DB_NAME=post_service_test_db

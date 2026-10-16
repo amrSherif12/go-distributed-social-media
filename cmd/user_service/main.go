@@ -13,11 +13,11 @@ import (
 )
 
 func main() {
-	db, err := database.NewDB(config.Required(config.UserDBName),
+	db, err := database.NewSqlDB(config.Required(config.UserDBName),
 		config.Required(config.UserDBHost),
 		config.Required(config.UserDBPort))
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error initializing user db: %s", err)
 	}
 	user_db_migrations.MigrateUserDB(db)
 

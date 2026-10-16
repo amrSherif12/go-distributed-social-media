@@ -57,6 +57,23 @@ func TestJWTMiddleware(t *testing.T) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 	})
 
+	t.Run("Valid Subject Token - Returns 200 and extracts UID", func(t *testing.T) {
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+			"sub": "user_123",
+			"exp": time.Now().Add(10 * time.Minute).Unix(),
+		})
+		tokenString, err := token.SignedString([]byte(config.Required(config.JWTKey)))
+		assert.NoError(t, err)
+
+		req := httptest.NewRequest("GET", "/profile", nil)
+		req.AddCookie(&http.Cookie{Name: "auth", Value: tokenString})
+		rec := httptest.NewRecorder()
+
+		jwtMiddleware.ServeHTTP(rec, req)
+
+		assert.Equal(t, http.StatusOK, rec.Code)
+	})
+
 	t.Run("Expired Token - Returns 401", func(t *testing.T) {
 		token := generateTestToken("user_123", -10*time.Minute)
 
