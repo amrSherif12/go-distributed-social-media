@@ -48,6 +48,7 @@ require (
 	github.com/klauspost/compress v1.19.2 // indirect
 	github.com/leodido/go-urn v1.5.0 // indirect
 	github.com/mfridman/interpolate v0.0.2 // indirect
+	github.com/neo4j/neo4j-go-driver/v5 v5.28.5 // indirect
 	github.com/sethvargo/go-retry v0.5.0 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
 	github.com/xdg-go/scram v1.2.0 // indirect

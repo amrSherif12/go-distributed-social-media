@@ -21,3 +21,8 @@ services:
   post-service:
     environment:
       - POST_DB_NAME=post_service_test_db
+
+  follow-db:
+    volumes: !reset []
+    tmpfs:
+      - /data

@@ -85,8 +85,12 @@ type postResponse struct {
 
 func requestJSON(t *testing.T, client *http.Client, method, path string, payload any) *http.Response {
 	t.Helper()
-	body, err := json.Marshal(payload)
-	require.NoError(t, err)
+	var body []byte
+	var err error
+	if payload != nil {
+		body, err = json.Marshal(payload)
+		require.NoError(t, err)
+	}
 	request, err := http.NewRequest(method, gatewayURL+path, bytes.NewReader(body))
 	require.NoError(t, err)
 	request.Header.Set("Content-Type", "application/json")

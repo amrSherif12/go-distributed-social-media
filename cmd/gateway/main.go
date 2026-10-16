@@ -27,6 +27,12 @@ func main() {
 		log.Fatalf("failed to connect to post service: %v", err)
 	}
 
+	followClient, err := gateway.Init(config.Required(config.FollowSrvHost),
+		config.Required(config.FollowSrvPort), pb.NewFollowServiceClient)
+	if err != nil {
+		log.Fatalf("failed to connect to follow service: %v", err)
+	}
+
 	router.Use(middlewares.IPRateLimiterMiddleware)
 	handlers.NewAuthHandler(router, userClient).RegisterRoutes()
 
@@ -36,6 +42,7 @@ func main() {
 
 	handlers.NewUserHandler(protected, userClient).RegisterRoutes()
 	handlers.NewPostHandler(protected, postClient).RegisterRoutes()
+	handlers.NewFollowHandler(protected, followClient).RegisterRoutes()
 
 	err = http.ListenAndServe(":"+config.Required(config.GatewayPort), router)
 	if err != nil {

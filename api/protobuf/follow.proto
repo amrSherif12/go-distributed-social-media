@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package follow.v1;
+option go_package = "go_distributed_social_media/api/pb;pb";
+
+service FollowService {
+  // These relationship operations are exposed through the authenticated gateway.
+  rpc FollowUser(FollowUserRequest) returns (FollowActionResponse);
+  rpc UnfollowUser(FollowUserRequest) returns (FollowActionResponse);
+  rpc GetFollows(GetFollowsRequest) returns (UserListResponse);
+  rpc GetFollowers(GetFollowersRequest) returns (UserListResponse);
+
+  // Internal service RPCs for consumers such as the feed service; not gateway routes.
+  rpc IsCelebrity(UserRequest) returns (CelebrityResponse);
+  rpc GetCelebrityFollows(UserRequest) returns (UserListResponse);
+}
+
+message FollowUserRequest {
+  string followee_id = 1;
+}
+
+message FollowActionResponse {
+  bool changed = 1;
+}
+
+message GetFollowsRequest {
+  string user_id = 1;
+}
+
+message GetFollowersRequest {
+  string user_id = 1;
+}
+
+message UserRequest {
+  string user_id = 1;
+}
+
+message UserListResponse {
+  repeated string user_ids = 1;
+}
+
+message CelebrityResponse {
+  bool is_celebrity = 1;
+}
