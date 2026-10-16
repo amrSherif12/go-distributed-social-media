@@ -15,7 +15,7 @@ jobs:
 
     strategy:
       matrix:
-       service: [user_service, gateway, post_service]
+       service: [user_service, gateway, post_service, follow_service]
 
     steps:
       - name: Checkout code
@@ -38,4 +38,3 @@ jobs:
           tags: |
             ghcr.io/amrsherif12/go-distributed-social-media/${{ matrix.service }}:latest
             ghcr.io/amrsherif12/go-distributed-social-media/${{ matrix.service }}:${{ github.sha }}
-

@@ -44,6 +44,15 @@ const (
 	PostObjDBBucket     string = "POST_OBJ_DB_BUCKET"
 	PostObjDBRegion     string = "POST_OBJ_DB_REGION"
 
+	FollowSrvHost   string = "FOLLOW_SRV_HOST"
+	FollowSrvPort   string = "FOLLOW_SRV_PORT"
+	FollowDBHost    string = "FOLLOW_DB_HOST"
+	FollowDBPort    string = "FOLLOW_DB_PORT"
+	FollowDBUser    string = "FOLLOW_DB_USER"
+	FollowDBPass    string = "FOLLOW_DB_PASS"
+	FollowCacheHost string = "FOLLOW_CACHE_HOST"
+	FollowCachePort string = "FOLLOW_CACHE_PORT"
+
 	GatewayHost string = "GATEWAY_HOST"
 	GatewayPort string = "GATEWAY_PORT"
 )

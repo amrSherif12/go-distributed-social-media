@@ -41,6 +41,16 @@ func Forward[Req proto.Message, Resp proto.Message](
 	req Req,
 	grpcCall func(ctx context.Context, in Req, opts ...grpc.CallOption) (Resp, error),
 ) {
+	ForwardWithMarshalOptions(w, r, req, grpcCall, protojson.MarshalOptions{})
+}
+
+func ForwardWithMarshalOptions[Req proto.Message, Resp proto.Message](
+	w http.ResponseWriter,
+	r *http.Request,
+	req Req,
+	grpcCall func(ctx context.Context, in Req, opts ...grpc.CallOption) (Resp, error),
+	marshalOptions protojson.MarshalOptions,
+) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "failed to read body", http.StatusBadRequest)
@@ -76,7 +86,7 @@ func Forward[Req proto.Message, Resp proto.Message](
 		}
 	}
 
-	out, err := protojson.Marshal(resp)
+	out, err := marshalOptions.Marshal(resp)
 	if err != nil {
 		log.Print(err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)

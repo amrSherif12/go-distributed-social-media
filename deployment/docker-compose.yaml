@@ -53,6 +53,8 @@ services:
       - USER_SRV_PORT=${USER_SRV_PORT}
       - POST_SRV_HOST=post-service
       - POST_SRV_PORT=${POST_SRV_PORT}
+      - FOLLOW_SRV_HOST=follow-service
+      - FOLLOW_SRV_PORT=${FOLLOW_SRV_PORT}
       - GATEWAY_PORT=${GATEWAY_PORT}
     ports:
       - "${GATEWAY_PORT}:${GATEWAY_PORT}"
@@ -60,6 +62,8 @@ services:
       user-service:
         condition: "service_healthy"
       post-service:
+        condition: "service_healthy"
+      follow-service:
         condition: "service_healthy"
 
   post-db:
@@ -161,7 +165,63 @@ services:
       retries: 10
       start_period: 30s
 
+  follow-db:
+    image: neo4j:5.26-community
+    environment:
+      NEO4J_AUTH: ${FOLLOW_DB_USER}/${FOLLOW_DB_PASS}
+      FOLLOW_DB_USER: ${FOLLOW_DB_USER}
+      FOLLOW_DB_PASS: ${FOLLOW_DB_PASS}
+    ports:
+      - "${FOLLOW_DB_PORT}:7687"
+    volumes:
+      - follow-db-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "cypher-shell -a bolt://localhost:7687 -u \"$${FOLLOW_DB_USER}\" -p \"$${FOLLOW_DB_PASS}\" 'RETURN 1' >/dev/null 2>&1"]
+      interval: 5s
+      timeout: 10s
+      retries: 20
+      start_period: 60s
+
+  follow-cache:
+    image: redis:7-alpine
+    ports:
+      - "${FOLLOW_CACHE_PORT}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  follow-service:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile
+      args:
+        SRV_NAME: follow_service
+    expose:
+      - "${FOLLOW_SRV_PORT}"
+    environment:
+      - FOLLOW_SRV_PORT=${FOLLOW_SRV_PORT}
+      - FOLLOW_DB_HOST=follow-db
+      - FOLLOW_DB_PORT=7687
+      - FOLLOW_DB_USER=${FOLLOW_DB_USER}
+      - FOLLOW_DB_PASS=${FOLLOW_DB_PASS}
+      - FOLLOW_CACHE_HOST=follow-cache
+      - FOLLOW_CACHE_PORT=6379
+    depends_on:
+      follow-db:
+        condition: service_healthy
+      follow-cache:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "pidof service || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
 volumes:
   user-db-data:
   post-db-data:
   post-obj-db:
+  follow-db-data:

@@ -3,7 +3,7 @@ export
 
 SHELL := cmd.exe
 
-.PHONY: proto proto-user proto-post dock-user-srv dock-gateway goose-user-db\
+.PHONY: proto proto-user proto-post proto-follow dock-user-srv dock-gateway goose-user-db\
  compose compose-dow compose-ps it-test it-test-b it-test-log compose-b compose-log
 
 define docker-build
@@ -32,6 +32,9 @@ proto-user:
 
 proto-post:
 	$(call proto,post)
+
+proto-follow:
+	$(call proto,follow)
 
 goose-user-db:
 	$(call goose-create,user_db_migrations)
