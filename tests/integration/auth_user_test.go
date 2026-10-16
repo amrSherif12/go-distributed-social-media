@@ -1,6 +1,6 @@
 //go:build integration
 
-package integration_test
+package integration
 
 import (
 	"bytes"
@@ -16,7 +16,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var gatewayURL = "http://127.0.0.1:8082"
+var gatewayURL string
 
 func TestAuthLifecycleIntegration(t *testing.T) {
 	jar, err := cookiejar.New(nil)

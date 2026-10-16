@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package post.v1;
+option go_package = "go_distributed_social_media/api/pb;pb";
+
+service PostService {
+  rpc CreatePost (CreatePostRequest) returns (CreatePostResponse);
+  rpc GetPost (GetPostRequest) returns (GetPostResponse);
+  rpc GetPresignedUploadUrl (GetPresignedUploadUrlRequest) returns (GetPresignedUploadUrlResponse);
+}
+
+message MediaAttachment {
+  string media_id = 1;
+  string url = 2;
+  string media_type = 3;
+}
+
+message CreatePostRequest {
+  string content = 1;
+  optional MediaAttachment media = 2;
+}
+
+message CreatePostResponse {
+  string post_id = 1;
+  int64 created_at = 3;
+}
+
+message GetPostRequest {
+  string post_id = 1;
+}
+
+message GetPostResponse {
+  string post_id = 1;
+  string user_id = 2;
+  string content = 3;
+  optional MediaAttachment media = 4;
+  int64 created_at = 5;
+}
+
+message GetPresignedUploadUrlRequest {
+  string file_extension = 1;
+  string mime_type = 2;
+}
+
+message GetPresignedUploadUrlResponse {
+  string upload_url = 1;
+  string media_url = 2;
+  string media_id = 3;
+}

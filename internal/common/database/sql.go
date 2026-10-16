@@ -11,7 +11,7 @@ import (
 	"github.com/pressly/goose/v3"
 )
 
-func NewDB(dbName string, dbHost string, dbPort string) (*sql.DB, error) {
+func NewSqlDB(dbName string, dbHost string, dbPort string) (*sql.DB, error) {
 
 	sqlCfg := mysql.Config{
 		User:                 config.Required(config.SQLDbUser),

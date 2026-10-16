@@ -1,7 +1,10 @@
+-include deployment/.env
+export
+
 SHELL := cmd.exe
 
-.PHONY: proto dock-user-srv dock-gateway goose-user-db compose compose-down it-test\
- it-test-b it-test-log compose-b compose-log
+.PHONY: proto proto-user proto-post dock-user-srv dock-gateway goose-user-db\
+ compose compose-dow compose-ps it-test it-test-b it-test-log compose-b compose-log
 
 define docker-build
 	docker build -t $(1) --build-arg SRV_NAME=$(1) ./deployment
@@ -18,16 +21,17 @@ define integration
     docker compose -f .\deployment\docker-compose.yaml -f .\deployment\docker-compose.test.yaml down -v
 endef
 
-proto:
+define proto
 	@if not exist api\pb mkdir api\pb
 	protoc --proto_path=api/protobuf --go_out=api/pb --go_opt=paths=source_relative\
- 	--go-grpc_out=api/pb --go-grpc_opt=paths=source_relative api/protobuf/user.proto
+ 	--go-grpc_out=api/pb --go-grpc_opt=paths=source_relative api/protobuf/$(1).proto
+endef
 
-dock-user-srv:
-	$(call docker-build,user_service)
+proto-user:
+	$(call proto,user)
 
-dock-gateway:
-	$(call docker-build,gateway)
+proto-post:
+	$(call proto,post)
 
 goose-user-db:
 	$(call goose-create,user_db_migrations)
@@ -44,11 +48,14 @@ compose-b:
 compose-log:
 	docker compose -f .\deployment\docker-compose.yaml logs
 
+compose-ps:
+	docker compose -f .\deployment\docker-compose.yaml ps
+
 it-test:
-	$(call integration,up -d)
+	$(call integration,up -d --wait)
 
 it-test-b:
-	$(call integration,up -d --build)
+	$(call integration,up -d --build --wait)
 
 it-test-log:
 	docker compose -f .\deployment\docker-compose.yaml -f .\deployment\docker-compose.test.yaml logs

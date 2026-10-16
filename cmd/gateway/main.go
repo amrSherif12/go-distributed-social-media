@@ -21,6 +21,12 @@ func main() {
 		log.Fatalf("failed to connect to user service: %v", err)
 	}
 
+	postClient, err := gateway.Init(config.Required(config.PostSrvHost),
+		config.Required(config.PostSrvPort), pb.NewPostServiceClient)
+	if err != nil {
+		log.Fatalf("failed to connect to post service: %v", err)
+	}
+
 	router.Use(middlewares.IPRateLimiterMiddleware)
 	handlers.NewAuthHandler(router, userClient).RegisterRoutes()
 
@@ -29,8 +35,9 @@ func main() {
 	protected.Use(middlewares.UIDRateLimiterMiddleware)
 
 	handlers.NewUserHandler(protected, userClient).RegisterRoutes()
+	handlers.NewPostHandler(protected, postClient).RegisterRoutes()
 
-	err = http.ListenAndServe(config.Required(config.GatewayHost)+":"+config.Required(config.GatewayPort), router)
+	err = http.ListenAndServe(":"+config.Required(config.GatewayPort), router)
 	if err != nil {
 		log.Fatal(err)
 	}

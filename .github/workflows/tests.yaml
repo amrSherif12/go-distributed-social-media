@@ -12,6 +12,24 @@ env:
   USER_DB_PORT: ${{ vars.USER_DB_PORT }}
   USER_DB_NAME: ${{ vars.USER_DB_NAME }}
   GATEWAY_PORT: ${{ vars.GATEWAY_PORT }}
+  POST_DB_PORT: ${{ vars.POST_DB_PORT }}
+  POST_DB_USER: ${{ vars.POST_DB_USER }}
+  POST_DB_PASS: ${{ vars.POST_DB_PASS }}
+  POST_DB_NAME: ${{ vars.POST_DB_NAME }}
+  POST_CACHE_HOST: ${{ vars.POST_CACHE_HOST }}
+  POST_EVENT_BROKER_PORT: ${{ vars.POST_EVENT_BROKER_PORT }}
+  POST_EVENT_BROKER_USER: ${{ vars.POST_EVENT_BROKER_USER }}
+  POST_EVENT_BROKER_PASS: ${{ vars.POST_EVENT_BROKER_PASS }}
+  POST_EVENT_QUEUE: ${{ vars.POST_EVENT_QUEUE }}
+  POST_SRV_PORT: ${{ vars.POST_SRV_PORT }}
+  POST_OBJ_DB_PUBLIC_HOST: ${{ vars.POST_OBJ_DB_PUBLIC_HOST }}
+  POST_OBJ_DB_PORT: ${{ vars.POST_OBJ_DB_PORT }}
+  POST_OBJ_DB_USER: ${{ vars.POST_OBJ_DB_USER }}
+  POST_OBJ_DB_PASS: ${{ vars.POST_OBJ_DB_PASS }}
+  POST_OBJ_DB_NAME: ${{ vars.POST_OBJ_DB_NAME }}
+  POST_OBJ_DB_BUCKET: ${{ vars.POST_OBJ_DB_BUCKET }}
+  POST_OBJ_DB_REGION: ${{ vars.POST_OBJ_DB_REGION }}
+  POST_CACHE_PORT: ${{ vars.POST_CACHE_PORT }}
 
 
 jobs:
@@ -35,9 +53,10 @@ jobs:
         run: docker compose -f ./deployment/docker-compose.yaml -f ./deployment/docker-compose.test.yaml up -d --build
 
       - name: Run integration tests
+        env:
+          GATEWAY_PORT: ${{ vars.GATEWAY_PORT }}
         run: go test -v -tags=integration ./tests/integration/
 
       - name: Teardown Infrastructure
         if: always()
         run: docker compose -f ./deployment/docker-compose.yaml -f ./deployment/docker-compose.test.yaml down -v
-

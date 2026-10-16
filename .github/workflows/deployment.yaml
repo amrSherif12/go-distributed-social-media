@@ -15,7 +15,7 @@ jobs:
 
     strategy:
       matrix:
-       service: [user_service, gateway]
+       service: [user_service, gateway, post_service]
 
     steps:
       - name: Checkout code
