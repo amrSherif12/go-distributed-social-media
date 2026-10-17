@@ -4,9 +4,13 @@ package integration
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
+	"go_distributed_social_media/api/pb"
 	"go_distributed_social_media/internal/common/config"
+	"go_distributed_social_media/internal/gateway"
+	"go_distributed_social_media/internal/post_service"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
@@ -17,6 +21,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/metadata"
 )
 
 func TestMain(m *testing.M) {
@@ -74,6 +79,64 @@ func TestPostLifecycleIntegration(t *testing.T) {
 	assert.Equal(t, "integration post", post.Content)
 	assert.NotEmpty(t, post.UserID)
 	assert.Greater(t, parseTimestamp(t, post.CreatedAt), int64(0))
+}
+
+func TestGetPostsByUsersIntegration(t *testing.T) {
+	port := config.Get(config.PostSrvPort)
+	if port == "" {
+		port = "8082"
+	}
+	conn, err := gateway.Dial("127.0.0.1", port)
+	require.NoError(t, err)
+	t.Cleanup(func() { require.NoError(t, conn.Close()) })
+	client := pb.NewPostServiceClient(conn)
+
+	userID := fmt.Sprintf("feed-posts-%d", time.Now().UnixNano())
+	ctx, cancel := context.WithTimeout(t.Context(), 30*time.Second)
+	defer cancel()
+	ctx = metadata.AppendToOutgoingContext(ctx, "uid", userID)
+	postIDs := make([]string, 0, 12)
+	var postCreatedAt int64
+	for i := range 12 {
+		created, err := client.CreatePost(ctx, &pb.CreatePostRequest{Content: fmt.Sprintf("feed post %02d", i)})
+		require.NoError(t, err)
+		postIDs = append(postIDs, created.GetPostId())
+		postCreatedAt = created.GetCreatedAt()
+	}
+
+	response, err := client.GetPostsByUsers(ctx, &pb.GetPostsByUsersRequest{
+		UserIds:         []string{userID},
+		BeforeCreatedAt: time.Now().Add(time.Minute).Unix(),
+	})
+	require.NoError(t, err)
+	require.Len(t, response.GetPosts(), post_service.MaxPostsByUsers)
+
+	expectedPostIDs := postIDs[len(postIDs)-post_service.MaxPostsByUsers:]
+	for i, post := range response.GetPosts() {
+		assert.Equal(t, expectedPostIDs[len(expectedPostIDs)-1-i], post.GetPostId())
+		assert.Equal(t, userID, post.GetUserId())
+		if i > 0 {
+			assert.LessOrEqual(t, post.GetCreatedAt(), response.GetPosts()[i-1].GetCreatedAt())
+		}
+	}
+
+	response, err = client.GetPostsByUsers(ctx, &pb.GetPostsByUsersRequest{
+		UserIds:         []string{userID},
+		BeforeCreatedAt: postCreatedAt,
+		BeforePostId:    postIDs[len(postIDs)-1],
+	})
+	require.NoError(t, err)
+	require.Len(t, response.GetPosts(), post_service.MaxPostsByUsers)
+	for i, post := range response.GetPosts() {
+		assert.Equal(t, postIDs[len(postIDs)-2-i], post.GetPostId())
+	}
+
+	response, err = client.GetPostsByUsers(ctx, &pb.GetPostsByUsersRequest{
+		UserIds:         []string{userID},
+		BeforeCreatedAt: time.Now().Add(-time.Hour).Unix(),
+	})
+	require.NoError(t, err)
+	assert.Empty(t, response.GetPosts())
 }
 
 type postResponse struct {

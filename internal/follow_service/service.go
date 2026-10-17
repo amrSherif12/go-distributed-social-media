@@ -73,6 +73,13 @@ func (s *Service) GetCelebrityFollows(ctx context.Context, userID string) ([]str
 	return s.repo.GetCelebrityFollows(ctx, userID)
 }
 
+func (s *Service) GetNonCelebrityFollows(ctx context.Context, userID string) ([]string, error) {
+	if err := validateUserID(userID); err != nil {
+		return nil, err
+	}
+	return s.repo.GetNonCelebrityFollows(ctx, userID)
+}
+
 func validateUserID(userID string) error {
 	if strings.TrimSpace(userID) == "" {
 		return &errs.Err{Err: errs.ValidationFailed, Message: "missing user id"}

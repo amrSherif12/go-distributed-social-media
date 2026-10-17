@@ -86,6 +86,20 @@ func (r *testRepository) GetCelebrityFollows(ctx context.Context, userID string)
 	return celebrities, nil
 }
 
+func (r *testRepository) GetNonCelebrityFollows(ctx context.Context, userID string) ([]string, error) {
+	follows, err := r.GetFollows(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	nonCelebrities := make([]string, 0)
+	for _, followeeID := range follows {
+		if !r.celebrities[followeeID] {
+			nonCelebrities = append(nonCelebrities, followeeID)
+		}
+	}
+	return nonCelebrities, nil
+}
+
 func TestServiceFollowAndUnfollow(t *testing.T) {
 	service := NewService(newTestRepository())
 	ctx := context.Background()
@@ -138,7 +152,10 @@ func TestHandlerFollowRequiresAuthenticatedUser(t *testing.T) {
 func TestHandlerInternalCelebrityMethods(t *testing.T) {
 	repo := newTestRepository()
 	repo.celebrities["celebrity"] = true
+	repo.celebrities["regular"] = false
 	_, err := repo.Follow(context.Background(), "viewer", "celebrity")
+	require.NoError(t, err)
+	_, err = repo.Follow(context.Background(), "viewer", "regular")
 	require.NoError(t, err)
 	handler := NewHandler(NewService(repo))
 
@@ -149,6 +166,10 @@ func TestHandlerInternalCelebrityMethods(t *testing.T) {
 	following, err := handler.GetCelebrityFollows(context.Background(), &pb.UserRequest{UserId: "viewer"})
 	require.NoError(t, err)
 	assert.Equal(t, []string{"celebrity"}, following.GetUserIds())
+
+	nonCelebrityFollowing, err := handler.GetNonCelebrityFollows(context.Background(), &pb.UserRequest{UserId: "viewer"})
+	require.NoError(t, err)
+	assert.Equal(t, []string{"regular"}, nonCelebrityFollowing.GetUserIds())
 }
 
 func TestCachedRepositoryInvalidatesChangedRelationships(t *testing.T) {

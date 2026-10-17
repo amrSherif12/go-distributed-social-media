@@ -75,6 +75,14 @@ func (h *Handler) GetCelebrityFollows(ctx context.Context, req *pb.UserRequest) 
 	return &pb.UserListResponse{UserIds: userIDs}, nil
 }
 
+func (h *Handler) GetNonCelebrityFollows(ctx context.Context, req *pb.UserRequest) (*pb.UserListResponse, error) {
+	userIDs, err := h.service.GetNonCelebrityFollows(ctx, req.GetUserId())
+	if err != nil {
+		return nil, utils.ParseError(err)
+	}
+	return &pb.UserListResponse{UserIds: userIDs}, nil
+}
+
 func uidFromContext(ctx context.Context) string {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {

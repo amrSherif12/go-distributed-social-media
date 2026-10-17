@@ -14,6 +14,7 @@ type Repository interface {
 	GetFollows(ctx context.Context, userID string) ([]string, error)
 	GetFollowers(ctx context.Context, userID string) ([]string, error)
 	GetCelebrityFollows(ctx context.Context, userID string) ([]string, error)
+	GetNonCelebrityFollows(ctx context.Context, userID string) ([]string, error)
 }
 
 type Neo4jRepo struct {
@@ -142,6 +143,17 @@ func (r *Neo4jRepo) GetCelebrityFollows(ctx context.Context, userID string) ([]s
 			"OPTIONAL MATCH (follower:FollowUser)-[:FOLLOWS]->(followee) "+
 			"WITH followee, count(follower) AS followerCount "+
 			"WHERE followerCount >= $threshold "+
+			"RETURN followee.id AS id ORDER BY id",
+		map[string]any{"userID": userID, "threshold": CelebrityFollowerThreshold},
+	)
+}
+
+func (r *Neo4jRepo) GetNonCelebrityFollows(ctx context.Context, userID string) ([]string, error) {
+	return r.getIDs(ctx,
+		"MATCH (:FollowUser {id: $userID})-[:FOLLOWS]->(followee:FollowUser) "+
+			"OPTIONAL MATCH (follower:FollowUser)-[:FOLLOWS]->(followee) "+
+			"WITH followee, count(follower) AS followerCount "+
+			"WHERE followerCount < $threshold "+
 			"RETURN followee.id AS id ORDER BY id",
 		map[string]any{"userID": userID, "threshold": CelebrityFollowerThreshold},
 	)

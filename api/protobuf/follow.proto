@@ -13,6 +13,8 @@ service FollowService {
   // Internal service RPCs for consumers such as the feed service; not gateway routes.
   rpc IsCelebrity(UserRequest) returns (CelebrityResponse);
   rpc GetCelebrityFollows(UserRequest) returns (UserListResponse);
+  // Returns followed users below the celebrity follower threshold.
+  rpc GetNonCelebrityFollows(UserRequest) returns (UserListResponse);
 }
 
 message FollowUserRequest {

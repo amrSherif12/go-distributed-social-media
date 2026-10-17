@@ -348,7 +348,7 @@ const file_follow_proto_rawDesc = "" +
 	"\x10UserListResponse\x12\x19\n" +
 	"\buser_ids\x18\x01 \x03(\tR\auserIds\"6\n" +
 	"\x11CelebrityResponse\x12!\n" +
-	"\fis_celebrity\x18\x01 \x01(\bR\visCelebrity2\xd2\x03\n" +
+	"\fis_celebrity\x18\x01 \x01(\bR\visCelebrity2\xa1\x04\n" +
 	"\rFollowService\x12K\n" +
 	"\n" +
 	"FollowUser\x12\x1c.follow.v1.FollowUserRequest\x1a\x1f.follow.v1.FollowActionResponse\x12M\n" +
@@ -357,7 +357,8 @@ const file_follow_proto_rawDesc = "" +
 	"GetFollows\x12\x1c.follow.v1.GetFollowsRequest\x1a\x1b.follow.v1.UserListResponse\x12K\n" +
 	"\fGetFollowers\x12\x1e.follow.v1.GetFollowersRequest\x1a\x1b.follow.v1.UserListResponse\x12C\n" +
 	"\vIsCelebrity\x12\x16.follow.v1.UserRequest\x1a\x1c.follow.v1.CelebrityResponse\x12J\n" +
-	"\x13GetCelebrityFollows\x12\x16.follow.v1.UserRequest\x1a\x1b.follow.v1.UserListResponseB'Z%go_distributed_social_media/api/pb;pbb\x06proto3"
+	"\x13GetCelebrityFollows\x12\x16.follow.v1.UserRequest\x1a\x1b.follow.v1.UserListResponse\x12M\n" +
+	"\x16GetNonCelebrityFollows\x12\x16.follow.v1.UserRequest\x1a\x1b.follow.v1.UserListResponseB'Z%go_distributed_social_media/api/pb;pbb\x06proto3"
 
 var (
 	file_follow_proto_rawDescOnce sync.Once
@@ -388,14 +389,16 @@ var file_follow_proto_depIdxs = []int32{
 	3, // 3: follow.v1.FollowService.GetFollowers:input_type -> follow.v1.GetFollowersRequest
 	4, // 4: follow.v1.FollowService.IsCelebrity:input_type -> follow.v1.UserRequest
 	4, // 5: follow.v1.FollowService.GetCelebrityFollows:input_type -> follow.v1.UserRequest
-	1, // 6: follow.v1.FollowService.FollowUser:output_type -> follow.v1.FollowActionResponse
-	1, // 7: follow.v1.FollowService.UnfollowUser:output_type -> follow.v1.FollowActionResponse
-	5, // 8: follow.v1.FollowService.GetFollows:output_type -> follow.v1.UserListResponse
-	5, // 9: follow.v1.FollowService.GetFollowers:output_type -> follow.v1.UserListResponse
-	6, // 10: follow.v1.FollowService.IsCelebrity:output_type -> follow.v1.CelebrityResponse
-	5, // 11: follow.v1.FollowService.GetCelebrityFollows:output_type -> follow.v1.UserListResponse
-	6, // [6:12] is the sub-list for method output_type
-	0, // [0:6] is the sub-list for method input_type
+	4, // 6: follow.v1.FollowService.GetNonCelebrityFollows:input_type -> follow.v1.UserRequest
+	1, // 7: follow.v1.FollowService.FollowUser:output_type -> follow.v1.FollowActionResponse
+	1, // 8: follow.v1.FollowService.UnfollowUser:output_type -> follow.v1.FollowActionResponse
+	5, // 9: follow.v1.FollowService.GetFollows:output_type -> follow.v1.UserListResponse
+	5, // 10: follow.v1.FollowService.GetFollowers:output_type -> follow.v1.UserListResponse
+	6, // 11: follow.v1.FollowService.IsCelebrity:output_type -> follow.v1.CelebrityResponse
+	5, // 12: follow.v1.FollowService.GetCelebrityFollows:output_type -> follow.v1.UserListResponse
+	5, // 13: follow.v1.FollowService.GetNonCelebrityFollows:output_type -> follow.v1.UserListResponse
+	7, // [7:14] is the sub-list for method output_type
+	0, // [0:7] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name

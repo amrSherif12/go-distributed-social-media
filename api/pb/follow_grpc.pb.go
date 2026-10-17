@@ -19,12 +19,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	FollowService_FollowUser_FullMethodName          = "/follow.v1.FollowService/FollowUser"
-	FollowService_UnfollowUser_FullMethodName        = "/follow.v1.FollowService/UnfollowUser"
-	FollowService_GetFollows_FullMethodName          = "/follow.v1.FollowService/GetFollows"
-	FollowService_GetFollowers_FullMethodName        = "/follow.v1.FollowService/GetFollowers"
-	FollowService_IsCelebrity_FullMethodName         = "/follow.v1.FollowService/IsCelebrity"
-	FollowService_GetCelebrityFollows_FullMethodName = "/follow.v1.FollowService/GetCelebrityFollows"
+	FollowService_FollowUser_FullMethodName             = "/follow.v1.FollowService/FollowUser"
+	FollowService_UnfollowUser_FullMethodName           = "/follow.v1.FollowService/UnfollowUser"
+	FollowService_GetFollows_FullMethodName             = "/follow.v1.FollowService/GetFollows"
+	FollowService_GetFollowers_FullMethodName           = "/follow.v1.FollowService/GetFollowers"
+	FollowService_IsCelebrity_FullMethodName            = "/follow.v1.FollowService/IsCelebrity"
+	FollowService_GetCelebrityFollows_FullMethodName    = "/follow.v1.FollowService/GetCelebrityFollows"
+	FollowService_GetNonCelebrityFollows_FullMethodName = "/follow.v1.FollowService/GetNonCelebrityFollows"
 )
 
 // FollowServiceClient is the client API for FollowService service.
@@ -39,6 +40,8 @@ type FollowServiceClient interface {
 	// Internal service RPCs for consumers such as the feed service; not gateway routes.
 	IsCelebrity(ctx context.Context, in *UserRequest, opts ...grpc.CallOption) (*CelebrityResponse, error)
 	GetCelebrityFollows(ctx context.Context, in *UserRequest, opts ...grpc.CallOption) (*UserListResponse, error)
+	// Returns followed users below the celebrity follower threshold.
+	GetNonCelebrityFollows(ctx context.Context, in *UserRequest, opts ...grpc.CallOption) (*UserListResponse, error)
 }
 
 type followServiceClient struct {
@@ -109,6 +112,16 @@ func (c *followServiceClient) GetCelebrityFollows(ctx context.Context, in *UserR
 	return out, nil
 }
 
+func (c *followServiceClient) GetNonCelebrityFollows(ctx context.Context, in *UserRequest, opts ...grpc.CallOption) (*UserListResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UserListResponse)
+	err := c.cc.Invoke(ctx, FollowService_GetNonCelebrityFollows_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // FollowServiceServer is the server API for FollowService service.
 // All implementations must embed UnimplementedFollowServiceServer
 // for forward compatibility.
@@ -121,6 +134,8 @@ type FollowServiceServer interface {
 	// Internal service RPCs for consumers such as the feed service; not gateway routes.
 	IsCelebrity(context.Context, *UserRequest) (*CelebrityResponse, error)
 	GetCelebrityFollows(context.Context, *UserRequest) (*UserListResponse, error)
+	// Returns followed users below the celebrity follower threshold.
+	GetNonCelebrityFollows(context.Context, *UserRequest) (*UserListResponse, error)
 	mustEmbedUnimplementedFollowServiceServer()
 }
 
@@ -148,6 +163,9 @@ func (UnimplementedFollowServiceServer) IsCelebrity(context.Context, *UserReques
 }
 func (UnimplementedFollowServiceServer) GetCelebrityFollows(context.Context, *UserRequest) (*UserListResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetCelebrityFollows not implemented")
+}
+func (UnimplementedFollowServiceServer) GetNonCelebrityFollows(context.Context, *UserRequest) (*UserListResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetNonCelebrityFollows not implemented")
 }
 func (UnimplementedFollowServiceServer) mustEmbedUnimplementedFollowServiceServer() {}
 func (UnimplementedFollowServiceServer) testEmbeddedByValue()                       {}
@@ -278,6 +296,24 @@ func _FollowService_GetCelebrityFollows_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _FollowService_GetNonCelebrityFollows_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FollowServiceServer).GetNonCelebrityFollows(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: FollowService_GetNonCelebrityFollows_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FollowServiceServer).GetNonCelebrityFollows(ctx, req.(*UserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // FollowService_ServiceDesc is the grpc.ServiceDesc for FollowService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -308,6 +344,10 @@ var FollowService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetCelebrityFollows",
 			Handler:    _FollowService_GetCelebrityFollows_Handler,
+		},
+		{
+			MethodName: "GetNonCelebrityFollows",
+			Handler:    _FollowService_GetNonCelebrityFollows_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

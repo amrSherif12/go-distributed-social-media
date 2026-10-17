@@ -58,6 +58,10 @@ func (r *CachedRepository) GetCelebrityFollows(ctx context.Context, userID strin
 	return r.next.GetCelebrityFollows(ctx, userID)
 }
 
+func (r *CachedRepository) GetNonCelebrityFollows(ctx context.Context, userID string) ([]string, error) {
+	return r.next.GetNonCelebrityFollows(ctx, userID)
+}
+
 func (r *CachedRepository) getIDs(ctx context.Context, key string, load func() ([]string, error)) ([]string, error) {
 	value, err := r.cache.Get(ctx, key).Result()
 	if err == nil {

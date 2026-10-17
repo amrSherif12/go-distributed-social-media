@@ -52,6 +52,10 @@ func (r *CachedMetadataRepo) Get(ctx context.Context, postID string) (Post, erro
 	return result.(Post), nil
 }
 
+func (r *CachedMetadataRepo) GetByUsers(ctx context.Context, dto GetPostsByUsersDTO) ([]Post, error) {
+	return r.next.GetByUsers(ctx, dto)
+}
+
 func (r *CachedMetadataRepo) getCached(ctx context.Context, key string) (Post, bool) {
 	value, err := r.cache.Get(ctx, key).Result()
 	if err != nil {
