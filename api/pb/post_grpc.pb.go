@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	PostService_CreatePost_FullMethodName            = "/post.v1.PostService/CreatePost"
 	PostService_GetPost_FullMethodName               = "/post.v1.PostService/GetPost"
+	PostService_GetPostsByUsers_FullMethodName       = "/post.v1.PostService/GetPostsByUsers"
 	PostService_GetPresignedUploadUrl_FullMethodName = "/post.v1.PostService/GetPresignedUploadUrl"
 )
 
@@ -30,6 +31,8 @@ const (
 type PostServiceClient interface {
 	CreatePost(ctx context.Context, in *CreatePostRequest, opts ...grpc.CallOption) (*CreatePostResponse, error)
 	GetPost(ctx context.Context, in *GetPostRequest, opts ...grpc.CallOption) (*GetPostResponse, error)
+	// Internal backfill query for feed-service consumers; not exposed through the gateway.
+	GetPostsByUsers(ctx context.Context, in *GetPostsByUsersRequest, opts ...grpc.CallOption) (*GetPostsByUsersResponse, error)
 	GetPresignedUploadUrl(ctx context.Context, in *GetPresignedUploadUrlRequest, opts ...grpc.CallOption) (*GetPresignedUploadUrlResponse, error)
 }
 
@@ -61,6 +64,16 @@ func (c *postServiceClient) GetPost(ctx context.Context, in *GetPostRequest, opt
 	return out, nil
 }
 
+func (c *postServiceClient) GetPostsByUsers(ctx context.Context, in *GetPostsByUsersRequest, opts ...grpc.CallOption) (*GetPostsByUsersResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetPostsByUsersResponse)
+	err := c.cc.Invoke(ctx, PostService_GetPostsByUsers_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *postServiceClient) GetPresignedUploadUrl(ctx context.Context, in *GetPresignedUploadUrlRequest, opts ...grpc.CallOption) (*GetPresignedUploadUrlResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetPresignedUploadUrlResponse)
@@ -77,6 +90,8 @@ func (c *postServiceClient) GetPresignedUploadUrl(ctx context.Context, in *GetPr
 type PostServiceServer interface {
 	CreatePost(context.Context, *CreatePostRequest) (*CreatePostResponse, error)
 	GetPost(context.Context, *GetPostRequest) (*GetPostResponse, error)
+	// Internal backfill query for feed-service consumers; not exposed through the gateway.
+	GetPostsByUsers(context.Context, *GetPostsByUsersRequest) (*GetPostsByUsersResponse, error)
 	GetPresignedUploadUrl(context.Context, *GetPresignedUploadUrlRequest) (*GetPresignedUploadUrlResponse, error)
 	mustEmbedUnimplementedPostServiceServer()
 }
@@ -93,6 +108,9 @@ func (UnimplementedPostServiceServer) CreatePost(context.Context, *CreatePostReq
 }
 func (UnimplementedPostServiceServer) GetPost(context.Context, *GetPostRequest) (*GetPostResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetPost not implemented")
+}
+func (UnimplementedPostServiceServer) GetPostsByUsers(context.Context, *GetPostsByUsersRequest) (*GetPostsByUsersResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetPostsByUsers not implemented")
 }
 func (UnimplementedPostServiceServer) GetPresignedUploadUrl(context.Context, *GetPresignedUploadUrlRequest) (*GetPresignedUploadUrlResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetPresignedUploadUrl not implemented")
@@ -154,6 +172,24 @@ func _PostService_GetPost_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PostService_GetPostsByUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPostsByUsersRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PostServiceServer).GetPostsByUsers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PostService_GetPostsByUsers_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PostServiceServer).GetPostsByUsers(ctx, req.(*GetPostsByUsersRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _PostService_GetPresignedUploadUrl_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetPresignedUploadUrlRequest)
 	if err := dec(in); err != nil {
@@ -186,6 +222,10 @@ var PostService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetPost",
 			Handler:    _PostService_GetPost_Handler,
+		},
+		{
+			MethodName: "GetPostsByUsers",
+			Handler:    _PostService_GetPostsByUsers_Handler,
 		},
 		{
 			MethodName: "GetPresignedUploadUrl",

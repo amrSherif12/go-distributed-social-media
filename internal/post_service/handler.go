@@ -79,13 +79,34 @@ func (h *Handler) GetPost(ctx context.Context, req *pb.GetPostRequest) (*pb.GetP
 		return nil, utils.ParseError(err)
 	}
 
+	return postToPB(post), nil
+}
+
+func (h *Handler) GetPostsByUsers(ctx context.Context, req *pb.GetPostsByUsersRequest) (*pb.GetPostsByUsersResponse, error) {
+	posts, err := h.service.GetByUsers(ctx, GetPostsByUsersDTO{
+		UserIDs:         req.GetUserIds(),
+		BeforeCreatedAt: req.GetBeforeCreatedAt(),
+		BeforePostID:    req.GetBeforePostId(),
+	})
+	if err != nil {
+		return nil, utils.ParseError(err)
+	}
+
+	response := &pb.GetPostsByUsersResponse{Posts: make([]*pb.GetPostResponse, len(posts))}
+	for i, post := range posts {
+		response.Posts[i] = postToPB(post)
+	}
+	return response, nil
+}
+
+func postToPB(post Post) *pb.GetPostResponse {
 	return &pb.GetPostResponse{
 		PostId:    post.ID,
 		UserId:    post.UserID,
 		Content:   post.Content,
 		Media:     mediaToPB(post.Media),
 		CreatedAt: post.CreatedAt,
-	}, nil
+	}
 }
 
 func (h *Handler) GetPresignedUploadUrl(ctx context.Context, req *pb.GetPresignedUploadUrlRequest) (*pb.GetPresignedUploadUrlResponse, error) {

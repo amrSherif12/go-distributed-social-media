@@ -10,6 +10,7 @@ env:
   SQL_DB_PASS: ${{ vars.SQL_DB_PASS }}
   USER_SRV_PORT: ${{ vars.USER_SRV_PORT }}
   USER_DB_PORT: ${{ vars.USER_DB_PORT }}
+  USER_DB_HOST_PORT: ${{ vars.USER_DB_HOST_PORT || '3307' }}
   USER_DB_NAME: ${{ vars.USER_DB_NAME }}
   GATEWAY_PORT: ${{ vars.GATEWAY_PORT }}
   POST_DB_PORT: ${{ vars.POST_DB_PORT }}
@@ -36,6 +37,8 @@ env:
   FOLLOW_DB_USER: ${{ vars.FOLLOW_DB_USER || 'neo4j' }}
   FOLLOW_DB_PASS: ci-follow-db-password
   FOLLOW_CACHE_PORT: ${{ vars.FOLLOW_CACHE_PORT || '6384' }}
+  FEED_SRV_PORT: ${{ vars.FEED_SRV_PORT || '50054' }}
+  FEED_CACHE_PORT: ${{ vars.FEED_CACHE_PORT || '6385' }}
 
 
 jobs:

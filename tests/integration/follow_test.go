@@ -226,6 +226,10 @@ func TestCelebrityThresholdIntegration(t *testing.T) {
 	celebrities, err := repo.GetCelebrityFollows(ctx, viewer)
 	require.NoError(t, err)
 	assert.Equal(t, []string{targetAt}, celebrities)
+
+	nonCelebrities, err := service.GetNonCelebrityFollows(ctx, viewer)
+	require.NoError(t, err)
+	assert.Equal(t, []string{targetUnder}, nonCelebrities)
 }
 
 func createTestFollowers(ctx context.Context, driver neo4j.DriverWithContext, targetID, followerPrefix string, count int) error {

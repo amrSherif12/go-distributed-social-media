@@ -53,6 +53,11 @@ const (
 	FollowCacheHost string = "FOLLOW_CACHE_HOST"
 	FollowCachePort string = "FOLLOW_CACHE_PORT"
 
+	FeedSrvHost   string = "FEED_SRV_HOST"
+	FeedSrvPort   string = "FEED_SRV_PORT"
+	FeedCacheHost string = "FEED_CACHE_HOST"
+	FeedCachePort string = "FEED_CACHE_PORT"
+
 	GatewayHost string = "GATEWAY_HOST"
 	GatewayPort string = "GATEWAY_PORT"
 )

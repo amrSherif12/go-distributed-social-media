@@ -5,6 +5,7 @@ package integration
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"go_distributed_social_media/internal/user_service"
 	"io"
 	"net/http"
@@ -27,7 +28,7 @@ func TestAuthLifecycleIntegration(t *testing.T) {
 		Jar:     jar,
 	}
 
-	testEmail := "integration_user@example.com"
+	testEmail := fmt.Sprintf("integration_user_%d@example.com", time.Now().UnixNano())
 	testPassword := "SecurePass123!"
 	testUsername := "integration_hero"
 

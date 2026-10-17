@@ -33,6 +33,12 @@ func main() {
 		log.Fatalf("failed to connect to follow service: %v", err)
 	}
 
+	feedClient, err := gateway.Init(config.Required(config.FeedSrvHost),
+		config.Required(config.FeedSrvPort), pb.NewFeedServiceClient)
+	if err != nil {
+		log.Fatalf("failed to connect to feed service: %v", err)
+	}
+
 	router.Use(middlewares.IPRateLimiterMiddleware)
 	handlers.NewAuthHandler(router, userClient).RegisterRoutes()
 
@@ -43,6 +49,7 @@ func main() {
 	handlers.NewUserHandler(protected, userClient).RegisterRoutes()
 	handlers.NewPostHandler(protected, postClient).RegisterRoutes()
 	handlers.NewFollowHandler(protected, followClient).RegisterRoutes()
+	handlers.NewFeedHandler(protected, feedClient).RegisterRoutes()
 
 	err = http.ListenAndServe(":"+config.Required(config.GatewayPort), router)
 	if err != nil {

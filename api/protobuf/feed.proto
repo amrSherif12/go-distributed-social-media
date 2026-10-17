@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package feed.v1;
+option go_package = "go_distributed_social_media/api/pb;pb";
+
+import "post.proto";
+
+service FeedService {
+  rpc GetFeed(GetFeedRequest) returns (GetFeedResponse);
+}
+
+message GetFeedRequest {
+  int64 before_created_at = 1;
+  string before_post_id = 2;
+}
+
+message GetFeedResponse {
+  repeated post.v1.GetPostResponse posts = 1;
+  int64 next_before_created_at = 2;
+  string next_before_post_id = 3;
+}

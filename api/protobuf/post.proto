@@ -6,6 +6,8 @@ option go_package = "go_distributed_social_media/api/pb;pb";
 service PostService {
   rpc CreatePost (CreatePostRequest) returns (CreatePostResponse);
   rpc GetPost (GetPostRequest) returns (GetPostResponse);
+  // Internal backfill query for feed-service consumers; not exposed through the gateway.
+  rpc GetPostsByUsers (GetPostsByUsersRequest) returns (GetPostsByUsersResponse);
   rpc GetPresignedUploadUrl (GetPresignedUploadUrlRequest) returns (GetPresignedUploadUrlResponse);
 }
 
@@ -35,6 +37,17 @@ message GetPostResponse {
   string content = 3;
   optional MediaAttachment media = 4;
   int64 created_at = 5;
+}
+
+message GetPostsByUsersRequest {
+  repeated string user_ids = 1;
+  // Exclusive cursor; post_id breaks ties between posts created in the same second.
+  int64 before_created_at = 2;
+  string before_post_id = 3;
+}
+
+message GetPostsByUsersResponse {
+  repeated GetPostResponse posts = 1;
 }
 
 message GetPresignedUploadUrlRequest {

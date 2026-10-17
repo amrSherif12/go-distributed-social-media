@@ -18,6 +18,7 @@ import (
 
 	pb "go_distributed_social_media/api/pb"
 	"go_distributed_social_media/internal/common/errs"
+	"go_distributed_social_media/internal/common/utils"
 )
 
 type MockMetadataRepo struct{}
@@ -54,6 +55,32 @@ func (m *MockMetadataRepo) Get(ctx context.Context, postID string) (Post, error)
 			MediaType: "image/jpeg",
 		},
 	}, nil
+}
+
+func (m *MockMetadataRepo) GetByUsers(_ context.Context, dto GetPostsByUsersDTO) ([]Post, error) {
+	allowedUsers := make(map[string]struct{}, len(dto.UserIDs))
+	for _, userID := range dto.UserIDs {
+		allowedUsers[userID] = struct{}{}
+	}
+
+	posts := []Post{
+		{ID: "post_1", UserID: "user_1", Content: "first", CreatedAt: 100},
+		{ID: "post_2", UserID: "user_2", Content: "second", CreatedAt: 200},
+		{ID: "post_3", UserID: "user_1", Content: "third", CreatedAt: 300},
+	}
+	result := make([]Post, 0, len(posts))
+	for _, post := range posts {
+		if _, ok := allowedUsers[post.UserID]; !ok {
+			continue
+		}
+		if dto.BeforeCreatedAt > 0 && post.CreatedAt >= dto.BeforeCreatedAt {
+			if post.CreatedAt != dto.BeforeCreatedAt || dto.BeforePostID == "" || post.ID >= dto.BeforePostID {
+				continue
+			}
+		}
+		result = append(result, post)
+	}
+	return result, nil
 }
 
 type MockObjectRepo struct{}
@@ -96,6 +123,10 @@ func (r *blockingMetadataRepo) Get(ctx context.Context, postID string) (Post, er
 	case <-ctx.Done():
 		return Post{}, ctx.Err()
 	}
+}
+
+func (r *blockingMetadataRepo) GetByUsers(context.Context, GetPostsByUsersDTO) ([]Post, error) {
+	return nil, nil
 }
 
 func (m *MockPostCreatedPublisher) PublishPostCreated(_ context.Context, event PostCreatedEvent) error {
@@ -288,6 +319,59 @@ func TestHandler_GetPost(t *testing.T) {
 		assert.True(t, ok)
 		assert.Equal(t, codes.Internal, st.Code())
 	})
+}
+
+func TestHandler_GetPostsByUsers(t *testing.T) {
+	handler := NewHandler(NewService(&MockObjectRepo{}, &MockMetadataRepo{}))
+
+	response, err := handler.GetPostsByUsers(context.Background(), &pb.GetPostsByUsersRequest{
+		UserIds:         []string{"user_1"},
+		BeforeCreatedAt: 250,
+	})
+	require.NoError(t, err)
+	require.Len(t, response.GetPosts(), 1)
+	assert.Equal(t, "post_1", response.GetPosts()[0].GetPostId())
+	assert.Equal(t, "user_1", response.GetPosts()[0].GetUserId())
+	assert.Equal(t, int64(100), response.GetPosts()[0].GetCreatedAt())
+}
+
+func TestService_GetByUsersValidatesAndNormalizesRequest(t *testing.T) {
+	service := NewService(&MockObjectRepo{}, &MockMetadataRepo{})
+
+	posts, err := service.GetByUsers(context.Background(), GetPostsByUsersDTO{
+		UserIDs:         []string{" user_1 ", "user_1", "user_2"},
+		BeforeCreatedAt: 250,
+	})
+	require.NoError(t, err)
+	require.Len(t, posts, 2)
+	assert.ElementsMatch(t, []string{"post_1", "post_2"}, []string{posts[0].ID, posts[1].ID})
+
+	posts, err = service.GetByUsers(context.Background(), GetPostsByUsersDTO{})
+	require.NoError(t, err)
+	assert.Empty(t, posts)
+
+	posts, err = service.GetByUsers(context.Background(), GetPostsByUsersDTO{
+		UserIDs:         []string{"user_1", "user_2"},
+		BeforeCreatedAt: 300,
+		BeforePostID:    "post_3",
+	})
+	require.NoError(t, err)
+	assert.ElementsMatch(t, []string{"post_1", "post_2"}, []string{posts[0].ID, posts[1].ID})
+
+	_, err = service.GetByUsers(context.Background(), GetPostsByUsersDTO{UserIDs: []string{"user_1"}, BeforeCreatedAt: -1})
+	require.Error(t, err)
+	assert.Equal(t, codes.InvalidArgument, status.Code(utils.ParseError(err)))
+
+	_, err = service.GetByUsers(context.Background(), GetPostsByUsersDTO{
+		UserIDs:      []string{"user_1"},
+		BeforePostID: "post_1",
+	})
+	require.Error(t, err)
+	assert.Equal(t, codes.InvalidArgument, status.Code(utils.ParseError(err)))
+
+	_, err = service.GetByUsers(context.Background(), GetPostsByUsersDTO{UserIDs: []string{" "}})
+	require.Error(t, err)
+	assert.Equal(t, codes.InvalidArgument, status.Code(utils.ParseError(err)))
 }
 
 func TestHandler_GetPresignedUploadUrl(t *testing.T) {

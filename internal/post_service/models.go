@@ -1,5 +1,7 @@
 package post_service
 
+const MaxPostsByUsers = 10
+
 type MediaAttachment struct {
 	MediaID   string
 	URL       string
@@ -28,6 +30,12 @@ type CreatePostResponse struct {
 type PresignedUploadUrlDTO struct {
 	FileExtension string
 	MimeType      string
+}
+
+type GetPostsByUsersDTO struct {
+	UserIDs         []string
+	BeforeCreatedAt int64
+	BeforePostID    string
 }
 
 type GetPresignedUploadUrlResponse struct {

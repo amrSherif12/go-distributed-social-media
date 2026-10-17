@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"go_distributed_social_media/internal/common/errs"
+	"strings"
 )
 
 type PostCreatedEvent struct {
@@ -61,6 +62,38 @@ func (s *Service) Get(ctx context.Context, postID string) (Post, error) {
 		return Post{}, &errs.Err{Err: errs.ValidationFailed, Message: "missing post id"}
 	}
 	return s.metaRepo.Get(ctx, postID)
+}
+
+func (s *Service) GetByUsers(ctx context.Context, dto GetPostsByUsersDTO) ([]Post, error) {
+	if dto.BeforeCreatedAt < 0 {
+		return nil, &errs.Err{Err: errs.ValidationFailed, Message: "before_created_at cannot be negative"}
+	}
+	if dto.BeforeCreatedAt == 0 && dto.BeforePostID != "" {
+		return nil, &errs.Err{Err: errs.ValidationFailed, Message: "before_post_id requires before_created_at"}
+	}
+
+	seen := make(map[string]struct{}, len(dto.UserIDs))
+	userIDs := make([]string, 0, len(dto.UserIDs))
+	for _, userID := range dto.UserIDs {
+		userID = strings.TrimSpace(userID)
+		if userID == "" {
+			return nil, &errs.Err{Err: errs.ValidationFailed, Message: "user ids cannot be empty"}
+		}
+		if _, exists := seen[userID]; exists {
+			continue
+		}
+		seen[userID] = struct{}{}
+		userIDs = append(userIDs, userID)
+	}
+	if len(userIDs) == 0 {
+		return []Post{}, nil
+	}
+
+	return s.metaRepo.GetByUsers(ctx, GetPostsByUsersDTO{
+		UserIDs:         userIDs,
+		BeforeCreatedAt: dto.BeforeCreatedAt,
+		BeforePostID:    dto.BeforePostID,
+	})
 }
 
 func (s *Service) GetPresignedUploadURL(ctx context.Context, dto PresignedUploadUrlDTO) (GetPresignedUploadUrlResponse, error) {

@@ -305,6 +305,111 @@ func (x *GetPostResponse) GetCreatedAt() int64 {
 	return 0
 }
 
+type GetPostsByUsersRequest struct {
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	UserIds []string               `protobuf:"bytes,1,rep,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
+	// Exclusive cursor; post_id breaks ties between posts created in the same second.
+	BeforeCreatedAt int64  `protobuf:"varint,2,opt,name=before_created_at,json=beforeCreatedAt,proto3" json:"before_created_at,omitempty"`
+	BeforePostId    string `protobuf:"bytes,3,opt,name=before_post_id,json=beforePostId,proto3" json:"before_post_id,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *GetPostsByUsersRequest) Reset() {
+	*x = GetPostsByUsersRequest{}
+	mi := &file_post_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetPostsByUsersRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetPostsByUsersRequest) ProtoMessage() {}
+
+func (x *GetPostsByUsersRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_post_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetPostsByUsersRequest.ProtoReflect.Descriptor instead.
+func (*GetPostsByUsersRequest) Descriptor() ([]byte, []int) {
+	return file_post_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *GetPostsByUsersRequest) GetUserIds() []string {
+	if x != nil {
+		return x.UserIds
+	}
+	return nil
+}
+
+func (x *GetPostsByUsersRequest) GetBeforeCreatedAt() int64 {
+	if x != nil {
+		return x.BeforeCreatedAt
+	}
+	return 0
+}
+
+func (x *GetPostsByUsersRequest) GetBeforePostId() string {
+	if x != nil {
+		return x.BeforePostId
+	}
+	return ""
+}
+
+type GetPostsByUsersResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Posts         []*GetPostResponse     `protobuf:"bytes,1,rep,name=posts,proto3" json:"posts,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetPostsByUsersResponse) Reset() {
+	*x = GetPostsByUsersResponse{}
+	mi := &file_post_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetPostsByUsersResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetPostsByUsersResponse) ProtoMessage() {}
+
+func (x *GetPostsByUsersResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_post_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetPostsByUsersResponse.ProtoReflect.Descriptor instead.
+func (*GetPostsByUsersResponse) Descriptor() ([]byte, []int) {
+	return file_post_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *GetPostsByUsersResponse) GetPosts() []*GetPostResponse {
+	if x != nil {
+		return x.Posts
+	}
+	return nil
+}
+
 type GetPresignedUploadUrlRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	FileExtension string                 `protobuf:"bytes,1,opt,name=file_extension,json=fileExtension,proto3" json:"file_extension,omitempty"`
@@ -315,7 +420,7 @@ type GetPresignedUploadUrlRequest struct {
 
 func (x *GetPresignedUploadUrlRequest) Reset() {
 	*x = GetPresignedUploadUrlRequest{}
-	mi := &file_post_proto_msgTypes[5]
+	mi := &file_post_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -327,7 +432,7 @@ func (x *GetPresignedUploadUrlRequest) String() string {
 func (*GetPresignedUploadUrlRequest) ProtoMessage() {}
 
 func (x *GetPresignedUploadUrlRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_post_proto_msgTypes[5]
+	mi := &file_post_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -340,7 +445,7 @@ func (x *GetPresignedUploadUrlRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPresignedUploadUrlRequest.ProtoReflect.Descriptor instead.
 func (*GetPresignedUploadUrlRequest) Descriptor() ([]byte, []int) {
-	return file_post_proto_rawDescGZIP(), []int{5}
+	return file_post_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *GetPresignedUploadUrlRequest) GetFileExtension() string {
@@ -368,7 +473,7 @@ type GetPresignedUploadUrlResponse struct {
 
 func (x *GetPresignedUploadUrlResponse) Reset() {
 	*x = GetPresignedUploadUrlResponse{}
-	mi := &file_post_proto_msgTypes[6]
+	mi := &file_post_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -380,7 +485,7 @@ func (x *GetPresignedUploadUrlResponse) String() string {
 func (*GetPresignedUploadUrlResponse) ProtoMessage() {}
 
 func (x *GetPresignedUploadUrlResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_post_proto_msgTypes[6]
+	mi := &file_post_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -393,7 +498,7 @@ func (x *GetPresignedUploadUrlResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPresignedUploadUrlResponse.ProtoReflect.Descriptor instead.
 func (*GetPresignedUploadUrlResponse) Descriptor() ([]byte, []int) {
-	return file_post_proto_rawDescGZIP(), []int{6}
+	return file_post_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetPresignedUploadUrlResponse) GetUploadUrl() string {
@@ -445,7 +550,13 @@ const file_post_proto_rawDesc = "" +
 	"\x05media\x18\x04 \x01(\v2\x18.post.v1.MediaAttachmentH\x00R\x05media\x88\x01\x01\x12\x1d\n" +
 	"\n" +
 	"created_at\x18\x05 \x01(\x03R\tcreatedAtB\b\n" +
-	"\x06_media\"b\n" +
+	"\x06_media\"\x85\x01\n" +
+	"\x16GetPostsByUsersRequest\x12\x19\n" +
+	"\buser_ids\x18\x01 \x03(\tR\auserIds\x12*\n" +
+	"\x11before_created_at\x18\x02 \x01(\x03R\x0fbeforeCreatedAt\x12$\n" +
+	"\x0ebefore_post_id\x18\x03 \x01(\tR\fbeforePostId\"I\n" +
+	"\x17GetPostsByUsersResponse\x12.\n" +
+	"\x05posts\x18\x01 \x03(\v2\x18.post.v1.GetPostResponseR\x05posts\"b\n" +
 	"\x1cGetPresignedUploadUrlRequest\x12%\n" +
 	"\x0efile_extension\x18\x01 \x01(\tR\rfileExtension\x12\x1b\n" +
 	"\tmime_type\x18\x02 \x01(\tR\bmimeType\"v\n" +
@@ -453,11 +564,12 @@ const file_post_proto_rawDesc = "" +
 	"\n" +
 	"upload_url\x18\x01 \x01(\tR\tuploadUrl\x12\x1b\n" +
 	"\tmedia_url\x18\x02 \x01(\tR\bmediaUrl\x12\x19\n" +
-	"\bmedia_id\x18\x03 \x01(\tR\amediaId2\xfa\x01\n" +
+	"\bmedia_id\x18\x03 \x01(\tR\amediaId2\xd0\x02\n" +
 	"\vPostService\x12E\n" +
 	"\n" +
 	"CreatePost\x12\x1a.post.v1.CreatePostRequest\x1a\x1b.post.v1.CreatePostResponse\x12<\n" +
-	"\aGetPost\x12\x17.post.v1.GetPostRequest\x1a\x18.post.v1.GetPostResponse\x12f\n" +
+	"\aGetPost\x12\x17.post.v1.GetPostRequest\x1a\x18.post.v1.GetPostResponse\x12T\n" +
+	"\x0fGetPostsByUsers\x12\x1f.post.v1.GetPostsByUsersRequest\x1a .post.v1.GetPostsByUsersResponse\x12f\n" +
 	"\x15GetPresignedUploadUrl\x12%.post.v1.GetPresignedUploadUrlRequest\x1a&.post.v1.GetPresignedUploadUrlResponseB'Z%go_distributed_social_media/api/pb;pbb\x06proto3"
 
 var (
@@ -472,30 +584,35 @@ func file_post_proto_rawDescGZIP() []byte {
 	return file_post_proto_rawDescData
 }
 
-var file_post_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_post_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_post_proto_goTypes = []any{
 	(*MediaAttachment)(nil),               // 0: post.v1.MediaAttachment
 	(*CreatePostRequest)(nil),             // 1: post.v1.CreatePostRequest
 	(*CreatePostResponse)(nil),            // 2: post.v1.CreatePostResponse
 	(*GetPostRequest)(nil),                // 3: post.v1.GetPostRequest
 	(*GetPostResponse)(nil),               // 4: post.v1.GetPostResponse
-	(*GetPresignedUploadUrlRequest)(nil),  // 5: post.v1.GetPresignedUploadUrlRequest
-	(*GetPresignedUploadUrlResponse)(nil), // 6: post.v1.GetPresignedUploadUrlResponse
+	(*GetPostsByUsersRequest)(nil),        // 5: post.v1.GetPostsByUsersRequest
+	(*GetPostsByUsersResponse)(nil),       // 6: post.v1.GetPostsByUsersResponse
+	(*GetPresignedUploadUrlRequest)(nil),  // 7: post.v1.GetPresignedUploadUrlRequest
+	(*GetPresignedUploadUrlResponse)(nil), // 8: post.v1.GetPresignedUploadUrlResponse
 }
 var file_post_proto_depIdxs = []int32{
 	0, // 0: post.v1.CreatePostRequest.media:type_name -> post.v1.MediaAttachment
 	0, // 1: post.v1.GetPostResponse.media:type_name -> post.v1.MediaAttachment
-	1, // 2: post.v1.PostService.CreatePost:input_type -> post.v1.CreatePostRequest
-	3, // 3: post.v1.PostService.GetPost:input_type -> post.v1.GetPostRequest
-	5, // 4: post.v1.PostService.GetPresignedUploadUrl:input_type -> post.v1.GetPresignedUploadUrlRequest
-	2, // 5: post.v1.PostService.CreatePost:output_type -> post.v1.CreatePostResponse
-	4, // 6: post.v1.PostService.GetPost:output_type -> post.v1.GetPostResponse
-	6, // 7: post.v1.PostService.GetPresignedUploadUrl:output_type -> post.v1.GetPresignedUploadUrlResponse
-	5, // [5:8] is the sub-list for method output_type
-	2, // [2:5] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	4, // 2: post.v1.GetPostsByUsersResponse.posts:type_name -> post.v1.GetPostResponse
+	1, // 3: post.v1.PostService.CreatePost:input_type -> post.v1.CreatePostRequest
+	3, // 4: post.v1.PostService.GetPost:input_type -> post.v1.GetPostRequest
+	5, // 5: post.v1.PostService.GetPostsByUsers:input_type -> post.v1.GetPostsByUsersRequest
+	7, // 6: post.v1.PostService.GetPresignedUploadUrl:input_type -> post.v1.GetPresignedUploadUrlRequest
+	2, // 7: post.v1.PostService.CreatePost:output_type -> post.v1.CreatePostResponse
+	4, // 8: post.v1.PostService.GetPost:output_type -> post.v1.GetPostResponse
+	6, // 9: post.v1.PostService.GetPostsByUsers:output_type -> post.v1.GetPostsByUsersResponse
+	8, // 10: post.v1.PostService.GetPresignedUploadUrl:output_type -> post.v1.GetPresignedUploadUrlResponse
+	7, // [7:11] is the sub-list for method output_type
+	3, // [3:7] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_post_proto_init() }
@@ -511,7 +628,7 @@ func file_post_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_post_proto_rawDesc), len(file_post_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
